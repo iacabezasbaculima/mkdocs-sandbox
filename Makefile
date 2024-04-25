@@ -4,3 +4,7 @@ dev:
 
 docs-local:
 	poetry run mkdocs serve
+
+release-docs:
+	@echo "Updating website docs"
+	poetry run mike deploy --push --update-aliases main stage
