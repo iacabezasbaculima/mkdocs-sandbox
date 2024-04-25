@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "mkdocs-sandbox"
+version = "0.1.0"
+description = "mkdocs-sandbox"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+mkdocs-material = "^9.5.19"
+mike = "^2.0.0"
+mkdocs-git-revision-date-plugin = "^0.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
