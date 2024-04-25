@@ -7,4 +7,4 @@ docs-local:
 
 release-docs:
 	@echo "Updating website docs"
-	poetry run mike deploy --push --update-aliases main stage
+	poetry run mike deploy --push --update-aliases ${VERSION} ${ALIAS}
