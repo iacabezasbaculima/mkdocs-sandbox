@@ -1,3 +1,6 @@
+VERSION:=main
+ALIAS:=stage
+
 dev:
 	poetry install
 	pre-commit install
