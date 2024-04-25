@@ -7,6 +7,10 @@ edit_uri: edit/main/docs
 nav:
   - Homepage:
       - index.md
+      - SectionA:
+        - page1.md
+      - SectionB:
+        - page2.md
 
 theme:
   name: material
