@@ -8,7 +8,7 @@ on:
 permissions: read-all
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     concurrency:
       group: release-docs
@@ -18,8 +18,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: ${{ github.ref }}
+
       # https://github.com/orgs/community/discussions/26560
       - name: Configure Git
         run: |
@@ -39,3 +39,27 @@ jobs:
           VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
           make release-docs VERSION="$VERSION" ALIAS="latest"
           poetry run mike set-default --push latest
+
+  dpeloy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write  # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
