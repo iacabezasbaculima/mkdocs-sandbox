@@ -30,10 +30,11 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         run: poetry install --no-root
+      # https://github.com/orgs/community/discussions/26560
       - name: Git client setup
         run: |
-          git config --global user.name MkdocsRobot
-          git config --global user.email mkdocsrobot@mail.com
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Build docs website and API reference
         run: |
           VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
