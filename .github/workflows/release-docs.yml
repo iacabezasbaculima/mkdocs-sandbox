@@ -30,10 +30,6 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         run: poetry install --no-root
-      - name: Git client setup
-        run: |
-          git config --global user.name Mkdocs Docs Deploy
-          git config --global user.email mkdocs-sandbox@mail.com
       - name: Build docs website and API reference
         run: |
           VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
