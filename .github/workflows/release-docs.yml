@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
           cache: "poetry"
       - name: Install dependencies
-        run: make dev
+        run: poetry install --no-root
       - name: Git client setup
         run: |
           git config --global user.name Mkdocs Docs Deploy
