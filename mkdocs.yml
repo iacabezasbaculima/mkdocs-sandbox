@@ -42,6 +42,7 @@ theme:
     - content.tabs.link
   icon:
     repo: fontawesome/brands/github
+  custom_dir: docs/overrides
 
 markdown_extensions:
   - abbr
