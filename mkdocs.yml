@@ -19,6 +19,8 @@ nav:
       - SectionD:
         - page7.md
         - page8.md
+      - SectionE:
+        - page9.md
 
 theme:
   name: material
