@@ -1,8 +1,5 @@
-VERSION:=main
-ALIAS:=stage
-
 dev:
-	poetry install
+	poetry install --no-root
 	pre-commit install
 
 docs-local:

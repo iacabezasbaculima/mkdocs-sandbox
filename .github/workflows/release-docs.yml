@@ -1,0 +1,41 @@
+name: Release Docs
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+permissions: read-all
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-docs
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+      - name: Install dependencies
+        run: make dev
+      - name: Git client setup
+        run: |
+          git config --global user.name Mkdocs Docs Deploy
+          git config --global user.email mkdocs-sandbox@mail.com
+      - name: Build docs website and API reference
+        run: |
+          VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
+          make release-docs VERSION="$VERSION" ALIAS="latest"
+          poetry run mike set-default --push latest

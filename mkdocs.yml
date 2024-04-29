@@ -64,6 +64,8 @@ markdown_extensions:
 plugins:
   - git-revision-date
   - search
+  - mike:
+      alias_type: copy
 
 extra:
   version:
