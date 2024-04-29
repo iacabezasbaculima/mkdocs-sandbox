@@ -14,13 +14,18 @@ jobs:
       group: release-docs
     permissions:
       contents: write
-      pages: write
+      # pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+      # https://github.com/orgs/community/discussions/26560
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Install poetry
         run: pipx install poetry
       - name: Set up Python
@@ -30,11 +35,6 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         run: poetry install --no-root
-      # https://github.com/orgs/community/discussions/26560
-      - name: Git client setup
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Build docs website and API reference
         run: |
           VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
