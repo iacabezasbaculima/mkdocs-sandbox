@@ -15,6 +15,7 @@ nav:
       - SectionC:
         - page4.md
         - page5.md
+        - page6.md
 
 theme:
   name: material
