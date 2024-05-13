@@ -13,7 +13,8 @@ on:
         type: string
         default: main
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   build:
