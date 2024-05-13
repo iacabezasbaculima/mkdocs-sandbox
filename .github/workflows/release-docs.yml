@@ -82,7 +82,7 @@ jobs:
           fi
 
   publish-docs:
-    if: ${{ needs.release.outputs.new_release_published }}
+    if: needs.release.outputs.new_release_published == 'true'
     needs: release
     permissions:
       contents: write
