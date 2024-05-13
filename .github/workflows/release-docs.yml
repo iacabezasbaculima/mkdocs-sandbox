@@ -49,17 +49,21 @@ jobs:
         env:
           DEBUG: semantic-release:*
           GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
-
-      - name: Update major version tag
-        if: steps.release.outputs.new_release_published
+      - name: Print outputs
+        shell: bash
         run: |
+          echo "published: ${{ steps.release.outputs.new_release_published}}"
           echo "new head: ${{ steps.release.outputs.new_release_git_head}}"
           echo "new tag: ${{ steps.release.outputs.new_release_git_tag}}"
           echo "new version: ${{ steps.release.outputs.new_release_version}}"
           echo "last head: ${{ steps.release.outputs.last_release_git_head}}"
           echo "last tag: ${{ steps.release.outputs.last_release_git_tag}}"
           echo "last version: ${{ steps.release.outputs.last_release_version}}"
-
+          
+      - name: Update major version tag
+        if: steps.release.outputs.new_release_published
+        shell: bash
+        run: |
           MAJOR_VERSION="${{ steps.release.outputs.new_release_major_version}}"
           if [[ "$MAJOR_VERSION" -eq 0 ]]; then
             # avoid creating a major tag v0
