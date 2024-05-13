@@ -16,7 +16,8 @@ on:
       - 'mkdocs.yml'
       - 'CHANGELOG.md'
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   release:
