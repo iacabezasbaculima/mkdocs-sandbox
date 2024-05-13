@@ -1,66 +1,90 @@
-name: Release Docs
+name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Whether to run semantic-release in `dry-run` mode
+        type: boolean
+        required: true
+        default: false
   push:
-    tags:
-      - v*.*.*
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'CHANGELOG.md'
 
 permissions: read-all
 
 jobs:
-  build:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     concurrency:
-      group: release-docs
+      group: release
+    outputs:
+      new_release_version: ${{ steps.release.outputs.new_release_version }}
+      new_release_git_head: ${{ steps.release.outputs.new_release_git_head }}
+      new_release_published: ${{ steps.release.outputs.new_release_published }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+
+      - name: Release
+        id: release
+        uses: cycjimmy/semantic-release-action@cb425203a562475bca039ba4dbf90c7f9ac790f4 # v4.1.0
+        with:
+          semantic_version: 23.0.2
+          dry_run: ${{ inputs.dry_run || false }}
+          extra_plugins: |
+            @semantic-release/changelog@6.0.3
+            @semantic-release/git@10.0.1
+            conventional-changelog-conventionalcommits@7.0.2
+        env:
+          DEBUG: semantic-release:*
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+
+      - name: Update major version tag
+        if: steps.release.outputs.new_release_published
+        run: |
+          echo "new head: ${{ steps.release.outputs.new_release_git_head}}"
+          echo "new tag: ${{ steps.release.outputs.new_release_git_tag}}"
+          echo "new version: ${{ steps.release.outputs.new_release_version}}"
+          echo "last head: ${{ steps.release.outputs.last_release_git_head}}"
+          echo "last tag: ${{ steps.release.outputs.last_release_git_tag}}"
+          echo "last version: ${{ steps.release.outputs.last_release_version}}"
+
+          MAJOR_VERSION="${{ steps.release.outputs.new_release_major_version}}"
+          if [[ "$MAJOR_VERSION" -eq 0 ]]; then
+            # avoid creating a major tag v0
+            MAJOR_VERSION="$((MAJOR_VERSION + 1))"
+          fi
+          NEW_HEAD_COMMIT="${{ steps.release.outputs.new_release_git_head}}"
+          if git rev-parse "v$MAJOR_VERSION" >/dev/null 2>&1; then
+            echo "git tag exists, updating..."
+            git tag -f "v$MAJOR_VERSION" "$NEW_HEAD_COMMIT"
+            git push origin -d "v$MAJOR_VERSION"
+            git push origin "v$MAJOR_VERSION"
+          else
+            echo "git tag does not exist, creating..."
+            git tag "v$MAJOR_VERSION" "$NEW_HEAD_COMMIT"
+            git push origin "v$MAJOR_VERSION"
+          fi
+
+  publish-docs:
+    if: ${{ needs.release.outputs.new_release_published }}
+    needs: release
     permissions:
       contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      # https://github.com/orgs/community/discussions/26560
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Install poetry
-        run: pipx install poetry
-      - name: Set up Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-      - name: Install dependencies
-        run: poetry install --no-root
-      - name: Build docs website and API reference
-        run: |
-          VERSION="$(echo ${{ github.ref_name }} | tr -d v)"
-          make release-docs VERSION="$VERSION" ALIAS="latest"
-          poetry run mike set-default --push latest
-
-  dpeloy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write  # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-    environment:
-      name: github-pages
-      url: ${{steps.deployment.outputs.page_url}}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy artifact
-        id: deployment
-        uses: actions/deploy-pages@v4
+      pages: write
+      id-token: write
+    secrets: inherit
+    uses: ./.github/workflows/self-docs-publish.yml
+    with:
+      version: ${{ needs.release.outputs.new_release_version }}
+      git_ref: ${{ needs.release.outputs.new_release_git_head }}
