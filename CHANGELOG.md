@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0](https://github.com/iacabezasbaculima/mkdocs-sandbox/compare/v0.13.1...v1.0.0) (2024-05-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update page3.md (#1)
+
+### Features
+
+* Update page3.md ([#1](https://github.com/iacabezasbaculima/mkdocs-sandbox/issues/1)) ([cae321e](https://github.com/iacabezasbaculima/mkdocs-sandbox/commit/cae321e707d3321adfd9929e74d453c6e24fab98))
+
 ## [0.13.1](https://github.com/iacabezasbaculima/mkdocs-sandbox/compare/v0.13.0...v0.13.1) (2024-05-14)
 
 
